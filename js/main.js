@@ -5,30 +5,62 @@
     let stops = [
         {
             id: 1,
-            name: "Starting Point",
-            lat: 43.0891, // Example coordinates for Milwaukee area
-            lng: -87.8875,
-            description: "Begin your tour here at this historic location."
+            name: "Hamel Music Center",
+            lat: 43.073377,
+            lng: -89.398010,
+            description: "Start your musical journey at the state-of-the-art Hamel Music Center, featuring performance venues and practice spaces for musicians."
+            
         },
         {
             id: 2,
-            name: "Second Stop",
-            lat: 43.0893,
-            lng: -87.8870,
-            description: "The second stop on our journey."
+            name: "Mills Music Library",
+            lat: 43.075050,
+            lng: -89.397973,
+            description: "Visit the Mills Music Library, home to an extensive collection of recordings, scores, and music-related materials."
         },
         {
             id: 3,
-            name: "Final Destination",
-            lat: 43.0896,
-            lng: -87.8865,
-            description: "The final stop on our tour."
+            name: "B-Side Records",
+            lat: 43.074932,
+            lng: -89.393822,
+            description: "Explore B-Side Records, a beloved local record store offering a wide selection of vinyl and music memorabilia."
+        },
+        {
+            id: 4,
+            name: "Orpheum Theatre",
+            lat: 43.074862,
+            lng: -89.388779,
+            description: "Experience the historic Orpheum Theatre, a landmark venue that has hosted countless memorable performances."
+        },
+        {
+            id: 5,
+            name: "Audio For The Arts",
+            lat: 43.078422,
+            lng: -89.377892,
+            description: "Visit Audio For The Arts, a professional recording studio and audio production facility."
+        },
+        {
+            id: 6,
+            name: "Spruce Tree Music And Repair",
+            lat: 43.084207,
+            lng: -89.376328,
+            description: "End your tour at Spruce Tree Music And Repair, specializing in instrument sales, repairs, and maintenance."
         }
     ];
 
+    // Store markers globally for access
+    let markers = [];
+
     // Initialize map
     function initMap() {
-        map = L.map('map').setView([43.0891, -87.8875], 15);
+        const centerLat = stops.reduce((sum, stop) => sum + stop.lat, 0) / stops.length;
+        const centerLng = stops.reduce((sum, stop) => sum + stop.lng, 0) / stops.length;
+        
+        map = L.map('map', {
+            center: [centerLat, centerLng],
+            zoom: 15,
+            zoomControl: true
+        });
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -37,43 +69,150 @@
         // Add stops to map
         stops.forEach(addStopToMap);
         
-        // Draw route between stops
+        // Draw walking route
         drawRoute();
         
         // Populate stops menu
         populateStopsMenu();
+
+        // Fit map bounds to include all stops and route
+        const bounds = L.latLngBounds(walkingPath);
+        map.fitBounds(bounds, { padding: [50, 50] });
+
+        // Add start tour button listener
+        document.querySelector('#aboutModal .btn-primary').addEventListener('click', () => {
+            setTimeout(() => {
+                showStopModal(stops[0]);
+                centerMapOnStop(stops[0]);
+            }, 500);
+        });
     }
 
     // Add a stop to the map
     function addStopToMap(stop) {
         const marker = L.circleMarker([stop.lat, stop.lng], {
             radius: 10,
-            className: 'tour-stop'
+            className: `tour-stop stop-${stop.id}`,
+            color: '#000',
+            fillColor: stop.id === 1 ? '#4CAF50' : '#fff',
+            fillOpacity: 1,
+            weight: 2
         }).addTo(map);
 
-        marker.on('click', () => showStopModal(stop));
+        // Create popup content
+        const popupContent = `<b>${stop.name}</b><br>Stop ${stop.id} of ${stops.length}`;
+        
+        // Bind popup to marker
+        const popup = L.popup().setContent(popupContent);
+        marker.bindPopup(popup);
+        
+        marker.on('click', () => {
+            const clickedStop = stops.find(s => s.id === stop.id);
+            showStopModal(clickedStop);
+            centerMapOnStop(clickedStop);
+        });
+
+        // Store marker reference
+        markers.push({ marker, popup, stop });
     }
+
+    // Center map on stop with animation and update popup
+    function centerMapOnStop(stop) {
+        // Find the marker for this stop
+        const markerObj = markers.find(m => m.stop.id === stop.id);
+        if (markerObj) {
+            // Close all existing popups first
+            markers.forEach(m => m.marker.closePopup());
+            
+            // Move to the location
+            map.flyTo([stop.lat, stop.lng], 16, {
+                duration: 1
+            });
+            
+            // Open the popup for the current stop
+            setTimeout(() => {
+                markerObj.marker.openPopup();
+            }, 1100);
+        }
+    }
+
+    // Detailed walking path coordinates
+    const walkingPath = [
+        [43.073377, -89.398010], // Mills Music Library
+        [43.073392, -89.398386],
+        [43.074078, -89.398284],
+        [43.074321, -89.398198],
+        [43.074321, -89.398198],
+        [43.074999, -89.398161],
+        [43.075050, -89.397973], // Hamel Music Center
+        [43.074911, -89.397491],
+        [43.074881, -89.393892],
+        [43.074932, -89.393822], // B-Side Records
+        [43.074862, -89.393575],
+        [43.074823, -89.391757],
+        [43.074807, -89.390122],
+        [43.074811, -89.388843],
+        [43.074862, -89.388779], // Orpheum Theatre
+        [43.074785, -89.388126],
+        [43.077575, -89.384147],
+        [43.076259, -89.382235],
+        [43.078524, -89.378921],
+        [43.078351, -89.378632],
+        [43.078422, -89.377892], // Audio For The Arts
+        [43.078531, -89.378514],
+        [43.078641, -89.378825],
+        [43.080012, -89.380594],
+        [43.082528, -89.376980],
+        [43.083703, -89.375284],
+        [43.083703, -89.375284],
+        [43.084360, -89.376161],
+        [43.084207, -89.376328]  // Spruce Tree Music And Repair
+    ];
 
     // Draw route between stops
     function drawRoute() {
-        const routePoints = stops.map(stop => [stop.lat, stop.lng]);
-        L.polyline(routePoints, {
-            color: 'blue',
+        L.polyline(walkingPath, {
+            color: '#3388ff',
             weight: 3,
-            opacity: 0.7
+            opacity: 0.7,
+            dashArray: '10, 10',
+            className: 'tour-route'
+        }).addTo(map);
+
+        // Add direction arrows
+        const decorator = L.polylineDecorator(walkingPath, {
+            patterns: [
+                {
+                    offset: 25,
+                    repeat: 150,
+                    symbol: L.Symbol.arrowHead({
+                        pixelSize: 15,
+                        polygon: false,
+                        pathOptions: {
+                            color: '#3388ff',
+                            fillOpacity: 1,
+                            weight: 2
+                        }
+                    })
+                }
+            ]
         }).addTo(map);
     }
 
     // Populate stops dropdown menu
     function populateStopsMenu() {
         const menu = document.querySelector('.dropdown-menu');
+        menu.innerHTML = '';
         stops.forEach(stop => {
             const item = document.createElement('li');
             const link = document.createElement('a');
             link.className = 'dropdown-item';
             link.textContent = `${stop.id}. ${stop.name}`;
             link.href = '#';
-            link.addEventListener('click', () => showStopModal(stop));
+            link.addEventListener('click', () => {
+                showStopModal(stop);
+                centerMapOnStop(stop);
+            });
             item.appendChild(link);
             menu.appendChild(item);
         });
@@ -82,30 +221,74 @@
     // Show stop modal
     function showStopModal(stop) {
         currentStop = stop.id - 1;
-        const modal = new bootstrap.Modal(document.getElementById('stopModal'));
+        
+        const modalElement = document.getElementById('stopModal');
+        const existingModal = bootstrap.Modal.getInstance(modalElement);
+        if (existingModal) {
+            existingModal.dispose();
+        }
+        
+        const modal = new bootstrap.Modal(modalElement);
         
         document.querySelector('#stopModal .modal-title').textContent = stop.name;
-        document.querySelector('#stopModal .modal-body').textContent = stop.description;
+        document.querySelector('#stopModal .modal-body').innerHTML = `
+            <p><strong>Stop ${stop.id} of ${stops.length}</strong></p>
+            <p>${stop.description}</p>
+        `;
         
-        // Update navigation buttons
-        document.querySelector('.prev-stop').disabled = currentStop === 0;
-        document.querySelector('.next-stop').disabled = currentStop === stops.length - 1;
+        // Update footer buttons
+        const footer = document.querySelector('#stopModal .modal-footer');
+        footer.innerHTML = ''; // Clear existing buttons
+
+        // Add Previous button if not first stop
+        if (currentStop > 0) {
+            const prevButton = document.createElement('button');
+            prevButton.type = 'button';
+            prevButton.className = 'btn btn-secondary prev-stop';
+            prevButton.textContent = 'Previous';
+            prevButton.addEventListener('click', () => {
+                const prevStop = stops[currentStop - 1];
+                showStopModal(prevStop);
+                centerMapOnStop(prevStop);
+            });
+            footer.appendChild(prevButton);
+        }
+
+        // Add Next/Close button
+        const nextButton = document.createElement('button');
+        nextButton.type = 'button';
+        nextButton.className = currentStop === stops.length - 1 ? 'btn btn-primary' : 'btn btn-primary next-stop';
+        nextButton.textContent = currentStop === stops.length - 1 ? 'Close' : 'Next';
+        nextButton.addEventListener('click', () => {
+            if (currentStop === stops.length - 1) {
+                modal.hide();
+            } else {
+                const nextStop = stops[currentStop + 1];
+                showStopModal(nextStop);
+                centerMapOnStop(nextStop);
+            }
+        });
+        footer.appendChild(nextButton);
+        
+        // Update marker colors
+        updateMarkers(stop.id);
         
         modal.show();
     }
 
-    // Navigation button handlers
-    document.querySelector('.prev-stop').addEventListener('click', () => {
-        if (currentStop > 0) {
-            showStopModal(stops[currentStop - 1]);
-        }
-    });
-
-    document.querySelector('.next-stop').addEventListener('click', () => {
-        if (currentStop < stops.length - 1) {
-            showStopModal(stops[currentStop + 1]);
-        }
-    });
+    // Update marker colors to show progress
+    function updateMarkers(currentId) {
+        stops.forEach(stop => {
+            const marker = document.querySelector(`.stop-${stop.id}`);
+            if (marker) {
+                if (stop.id <= currentId) {
+                    marker.style.fill = '#4CAF50';
+                } else {
+                    marker.style.fill = '#fff';
+                }
+            }
+        });
+    }
 
     // Location button functionality
     document.querySelector('.location-button').addEventListener('click', () => {
