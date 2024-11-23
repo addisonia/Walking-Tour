@@ -91,49 +91,6 @@
             }, 500);
         });
     
-
-
-    // Set up location button
-    document.querySelector('.location-button').addEventListener('click', () => {
-        if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser');
-            return;
-        }
-        
-        navigator.geolocation.getCurrentPosition(position => {
-            const { latitude, longitude } = position.coords;
-            
-            // Remove existing markers if they exist
-            if (userLocationMarker) map.removeLayer(userLocationMarker);
-            if (userLocationCircle) map.removeLayer(userLocationCircle);
-            
-            // Add blue dot for user location
-            userLocationMarker = L.circleMarker([latitude, longitude], {
-                radius: 8,
-                fillColor: "#2196F3",
-                color: "#ffffff",
-                fillOpacity: 1,
-                weight: 2
-            }).addTo(map);
-            
-            // Add accuracy circle
-            userLocationCircle = L.circle([latitude, longitude], {
-                radius: position.coords.accuracy,
-                fillColor: "#2196F3",
-                fillOpacity: 0.15,
-                color: "#2196F3",
-                weight: 1,
-                opacity: 0.3
-            }).addTo(map);
-            
-            // Fly to location
-            map.flyTo([latitude, longitude], 16, {
-                duration: 1
-            });
-        }, error => {
-            alert("Unable to find your location. Please make sure location services are enabled.");
-        });
-    });
     }
 
 
@@ -371,9 +328,51 @@
         });
     }
 
-    // Location button functionality
+    // // Location button functionality
+    // document.querySelector('.location-button').addEventListener('click', () => {
+    //     map.locate({setView: true, maxZoom: 16});
+    // });
+
+    // Set up location button
     document.querySelector('.location-button').addEventListener('click', () => {
-        map.locate({setView: true, maxZoom: 16});
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords;
+            
+            // Remove existing markers if they exist
+            if (userLocationMarker) map.removeLayer(userLocationMarker);
+            if (userLocationCircle) map.removeLayer(userLocationCircle);
+            
+            // Add blue dot for user location
+            userLocationMarker = L.circleMarker([latitude, longitude], {
+                radius: 8,
+                fillColor: "#2196F3",
+                color: "#ffffff",
+                fillOpacity: 1,
+                weight: 2
+            }).addTo(map);
+            
+            // Add accuracy circle
+            userLocationCircle = L.circle([latitude, longitude], {
+                radius: position.coords.accuracy / 8,
+                fillColor: "#2196F3",
+                fillOpacity: 0.15,
+                color: "#2196F3",
+                weight: 1,
+                opacity: 0.3
+            }).addTo(map);
+            
+            // Fly to location
+            map.flyTo([latitude, longitude], 16, {
+                duration: 1
+            });
+        }, error => {
+            alert("Unable to find your location. Please make sure location services are enabled.");
+        });
     });
 
     // About button functionality
