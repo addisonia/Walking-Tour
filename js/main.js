@@ -2,6 +2,10 @@
 (function() {
     // Tour state
     let map, currentStop = 0;
+    let userLocationMarker = null;
+    let userLocationCircle = null;
+    let hamelPulseLayer = null;
+    let hamelClicked = false;
     let stops = [
         {
             id: 1,
@@ -65,7 +69,7 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
-
+    
         // Add stops to map
         stops.forEach(addStopToMap);
         
@@ -74,11 +78,11 @@
         
         // Populate stops menu
         populateStopsMenu();
-
+    
         // Fit map bounds to include all stops and route
         const bounds = L.latLngBounds(walkingPath);
         map.fitBounds(bounds, { padding: [50, 50] });
-
+    
         // Add start tour button listener
         document.querySelector('#aboutModal .btn-primary').addEventListener('click', () => {
             setTimeout(() => {
@@ -86,7 +90,53 @@
                 centerMapOnStop(stops[0]);
             }, 500);
         });
+    
+
+
+    // Set up location button
+    document.querySelector('.location-button').addEventListener('click', () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords;
+            
+            // Remove existing markers if they exist
+            if (userLocationMarker) map.removeLayer(userLocationMarker);
+            if (userLocationCircle) map.removeLayer(userLocationCircle);
+            
+            // Add blue dot for user location
+            userLocationMarker = L.circleMarker([latitude, longitude], {
+                radius: 8,
+                fillColor: "#2196F3",
+                color: "#ffffff",
+                fillOpacity: 1,
+                weight: 2
+            }).addTo(map);
+            
+            // Add accuracy circle
+            userLocationCircle = L.circle([latitude, longitude], {
+                radius: position.coords.accuracy,
+                fillColor: "#2196F3",
+                fillOpacity: 0.15,
+                color: "#2196F3",
+                weight: 1,
+                opacity: 0.3
+            }).addTo(map);
+            
+            // Fly to location
+            map.flyTo([latitude, longitude], 16, {
+                duration: 1
+            });
+        }, error => {
+            alert("Unable to find your location. Please make sure location services are enabled.");
+        });
+    });
     }
+
+
 
     // Add a stop to the map
     function addStopToMap(stop) {
@@ -99,6 +149,25 @@
             weight: 2
         }).addTo(map);
 
+        // Add pulsing effect for Hamel Music Center
+        if (stop.name === "Hamel Music Center" && !hamelClicked) {
+            hamelPulseLayer = L.svg().addTo(map);
+            const pulseCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            pulseCircle.setAttribute("class", "pulse-ring");
+            pulseCircle.setAttribute("cx", map.latLngToLayerPoint([stop.lat, stop.lng]).x);
+            pulseCircle.setAttribute("cy", map.latLngToLayerPoint([stop.lat, stop.lng]).y);
+            hamelPulseLayer._container.appendChild(pulseCircle);
+
+            // Update pulse position on map move
+            map.on('moveend', () => {
+                if (hamelPulseLayer && !hamelClicked) {
+                    const point = map.latLngToLayerPoint([stop.lat, stop.lng]);
+                    pulseCircle.setAttribute("cx", point.x);
+                    pulseCircle.setAttribute("cy", point.y);
+                }
+            });
+        }
+
         // Create popup content
         const popupContent = `<b>${stop.name}</b><br>Stop ${stop.id} of ${stops.length}`;
         
@@ -108,6 +177,13 @@
         
         marker.on('click', () => {
             const clickedStop = stops.find(s => s.id === stop.id);
+            if (stop.name === "Hamel Music Center") {
+                hamelClicked = true;
+                if (hamelPulseLayer) {
+                    hamelPulseLayer.remove();
+                    hamelPulseLayer = null;
+                }
+            }
             showStopModal(clickedStop);
             centerMapOnStop(clickedStop);
         });
@@ -115,6 +191,11 @@
         // Store marker reference
         markers.push({ marker, popup, stop });
     }
+
+
+
+
+
 
     // Center map on stop with animation and update popup
     function centerMapOnStop(stop) {
