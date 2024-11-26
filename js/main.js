@@ -12,43 +12,48 @@
             name: "Hamel Music Center",
             lat: 43.073377,
             lng: -89.398010,
-            description: "Start your musical journey at the state-of-the-art Hamel Music Center, featuring performance venues and practice spaces for musicians."
-            
+            description: "Start your musical journey at the state-of-the-art Hamel Music Center, featuring performance venues and practice spaces for musicians.",
+            images: ["pictures/hamel.jpg"]
         },
         {
             id: 2,
             name: "Mills Music Library",
             lat: 43.075050,
             lng: -89.397973,
-            description: "Visit the Mills Music Library, home to an extensive collection of recordings, scores, and music-related materials."
+            description: "Visit the Mills Music Library, home to an extensive collection of recordings, scores, and music-related materials.",
+            images: ["pictures/mills1.jpg", "pictures/mills2.png"]
         },
         {
             id: 3,
             name: "B-Side Records",
             lat: 43.074932,
             lng: -89.393822,
-            description: "Explore B-Side Records, a beloved local record store offering a wide selection of vinyl and music memorabilia."
+            description: "Explore B-Side Records, a beloved local record store offering a wide selection of vinyl and music memorabilia.",
+            images: ["pictures/bside.jpeg"]
         },
         {
             id: 4,
             name: "Orpheum Theatre",
             lat: 43.074862,
             lng: -89.388779,
-            description: "Experience the historic Orpheum Theatre, a landmark venue that has hosted countless memorable performances."
+            description: "Experience the historic Orpheum Theatre, a landmark venue that has hosted countless memorable performances.",
+            images: ["pictures/orpheum.jpg"]
         },
         {
             id: 5,
             name: "Audio For The Arts",
             lat: 43.078422,
             lng: -89.377892,
-            description: "Visit Audio For The Arts, a professional recording studio and audio production facility."
+            description: "Visit Audio For The Arts, a professional recording studio and audio production facility.",
+            images: ["pictures/afta.jpg"]
         },
         {
             id: 6,
             name: "Spruce Tree Music And Repair",
             lat: 43.084207,
             lng: -89.376328,
-            description: "End your tour at Spruce Tree Music And Repair, specializing in instrument sales, repairs, and maintenance."
+            description: "End your tour at Spruce Tree Music And Repair, specializing in instrument sales, repairs, and maintenance.",
+            images: ["pictures/spruce.jpg"]
         }
     ];
 
@@ -269,16 +274,49 @@
         const modal = new bootstrap.Modal(modalElement);
         
         document.querySelector('#stopModal .modal-title').textContent = stop.name;
+        
+        // Create image carousel if stop has images
+        let imageContent = '';
+        if (stop.images && stop.images.length > 0) {
+            if (stop.images.length === 1) {
+                // Single image
+                imageContent = `
+                    <div class="text-center mb-3">
+                        <img src="${stop.images[0]}" class="img-fluid" alt="${stop.name}" style="max-height: 300px;">
+                    </div>`;
+            } else {
+                // Multiple images - create carousel
+                imageContent = `
+                    <div id="stopCarousel${stop.id}" class="carousel slide mb-3" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            ${stop.images.map((img, index) => `
+                                <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                                    <img src="${img}" class="d-block w-100" alt="${stop.name}" style="max-height: 300px; object-fit: contain;">
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${stop.images.length > 1 ? `
+                            <button class="carousel-control-prev" type="button" data-bs-target="#stopCarousel${stop.id}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#stopCarousel${stop.id}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        ` : ''}
+                    </div>`;
+            }
+        }
+        
         document.querySelector('#stopModal .modal-body').innerHTML = `
+            ${imageContent}
             <p><strong>Stop ${stop.id} of ${stops.length}</strong></p>
             <p>${stop.description}</p>
         `;
         
         // Update footer buttons
         const footer = document.querySelector('#stopModal .modal-footer');
-        footer.innerHTML = ''; // Clear existing buttons
+        footer.innerHTML = '';
 
-        // Add Previous button if not first stop
         if (currentStop > 0) {
             const prevButton = document.createElement('button');
             prevButton.type = 'button';
@@ -292,7 +330,6 @@
             footer.appendChild(prevButton);
         }
 
-        // Add Next/Close button
         const nextButton = document.createElement('button');
         nextButton.type = 'button';
         nextButton.className = currentStop === stops.length - 1 ? 'btn btn-primary' : 'btn btn-primary next-stop';
@@ -308,7 +345,6 @@
         });
         footer.appendChild(nextButton);
         
-        // Update marker colors
         updateMarkers(stop.id);
         
         modal.show();
