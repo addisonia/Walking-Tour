@@ -12,7 +12,7 @@
             name: "Hamel Music Center",
             lat: 43.073377,
             lng: -89.398010,
-            description: "Start your musical journey at the state-of-the-art Hamel Music Center, featuring performance venues and practice spaces for musicians.",
+            description: "Start your musical journey at the state-of-the-art Hamel Music Center, featuring performance venues and practice spaces for musicians. As described on their website: “The Mead Witter School of Music is a community of musicians, scholars, and teachers. Since its beginning in 1895, the School of Music has lived out a commitment to a student-centered musical education”. This is a great place to learn about the music community and potentially get involved yourself.",
             images: ["pictures/hamel.jpg"]
         },
         {
@@ -20,7 +20,7 @@
             name: "Mills Music Library",
             lat: 43.075050,
             lng: -89.397973,
-            description: "Visit the Mills Music Library, home to an extensive collection of recordings, scores, and music-related materials.",
+            description: "Visit the Mills Music Library, home to an extensive collection of recordings, scores, and music-related materials. This is an awesome place for learning about anything music related, whether its history, recordings, or even dance. If you arrive at the right timing, you can even attend a free concert as well!",
             images: ["pictures/mills1.jpg", "pictures/mills2.png"]
         },
         {
@@ -28,7 +28,7 @@
             name: "B-Side Records",
             lat: 43.074932,
             lng: -89.393822,
-            description: "Explore B-Side Records, a beloved local record store offering a wide selection of vinyl and music memorabilia.",
+            description: "Explore B-Side Records, a beloved local record store offering a wide selection of vinyl and music memorabilia. Down past target, this record store is small but stocked. I personally was able to find albums from artists I listen to, even lesser known ones so its worth checking out. Even if you don’t buy anything, I find it fun to just explore the place and see what’s there when I go.",
             images: ["pictures/bside.jpeg"]
         },
         {
@@ -36,7 +36,7 @@
             name: "Orpheum Theatre",
             lat: 43.074862,
             lng: -89.388779,
-            description: "Experience the historic Orpheum Theatre, a landmark venue that has hosted countless memorable performances.",
+            description: "Experience the historic Orpheum Theatre, a landmark venue that has hosted countless memorable performances. If you're a concert lover, this place is the place to go. It’s a great sounding environment for live performances, and has seats! So you don’t have to stand the whole time. The building is also pretty historic and has been around for a while so there’s a lot to see.",
             images: ["pictures/orpheum.jpg"]
         },
         {
@@ -44,7 +44,7 @@
             name: "Audio For The Arts",
             lat: 43.078422,
             lng: -89.377892,
-            description: "Visit Audio For The Arts, a professional recording studio and audio production facility.",
+            description: "Visit Audio For The Arts, a professional recording studio and audio production facility. As someone who produces and creates their own music, I love recording studios. Even if you don’t know or care about it, its still really cool to just observe all the instruments and technology used to create songs in a professional environment.",
             images: ["pictures/afta.jpg"]
         },
         {
@@ -52,7 +52,7 @@
             name: "Spruce Tree Music And Repair",
             lat: 43.084207,
             lng: -89.376328,
-            description: "End your tour at Spruce Tree Music And Repair, specializing in instrument sales, repairs, and maintenance.",
+            description: "End your tour at Spruce Tree Music And Repair, specializing in instrument sales, repairs, and maintenance. Hopefully by now you are musically inspired to try and make something of your own!",
             images: ["pictures/spruce.jpg"]
         }
     ];
@@ -426,3 +426,8 @@
     // Initialize map
     initMap();
 })();
+
+
+
+
+
